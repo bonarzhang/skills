@@ -26,6 +26,7 @@ slk users                             # List workspace users (alias: u)
 slk activity                          # All channels with unread indicators (alias: a)
 slk unread                            # Only channels with unreads, excludes muted (alias: ur)
 slk starred                           # VIP users + starred items (alias: star)
+slk saved [count] [--all]             # Saved for later items (alias: sv)
 slk pins <channel>                    # Pinned items in a channel (alias: pin)
 
 # Write
@@ -45,6 +46,8 @@ Channel accepts name (`ai-coding`) or ID (`C08A8AQ2AFP`).
 ## Auth
 
 Auth is automatic — extracts session token from Slack desktop app's LevelDB + decrypts cookie from macOS Keychain. Caches working token in `~/.local/slk/token-cache.json`.
+
+**First run:** macOS will show a Keychain dialog asking to allow access to "Slack Safe Storage". Choose "Allow" (one-time) or "Always Allow" (permanent, no future prompts). "Always Allow" is convenient but means any process running as your user can extract credentials silently.
 
 If auth fails: ensure Slack desktop app is running. If token rotated, delete cache and retry:
 ```bash

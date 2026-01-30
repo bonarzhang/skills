@@ -3,9 +3,15 @@
   "slug": "slack-personal",
   "displayName": "Slack Skill for macOS, so your agents can read and send messages 💬",
   "latest": {
-    "version": "0.1.0",
-    "publishedAt": 1769750324081,
-    "commit": "https://github.com/clawdbot/skills/commit/0848d77a3801dfc1b2a58687246b947eb2c59213"
+    "version": "0.1.2",
+    "publishedAt": 1769787599932,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "0.1.0",
+      "publishedAt": 1769750324081,
+      "commit": "https://github.com/clawdbot/skills/commit/0848d77a3801dfc1b2a58687246b947eb2c59213"
+    }
+  ]
 }
