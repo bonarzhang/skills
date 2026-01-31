@@ -525,18 +525,6 @@ def _report(vehicle, data):
     if cable is not None:
         lines.append(f"Charge cable: {cable}")
 
-    # Fast charger info (Supercharger/CCS) when present.
-    fast = charge.get('fast_charger_present')
-    ftype = charge.get('fast_charger_type')
-    if fast is not None or ftype is not None:
-        bits = []
-        if fast is not None:
-            bits.append('Yes' if fast else 'No')
-        if isinstance(ftype, str) and ftype.strip():
-            bits.append(ftype.strip())
-        if bits:
-            lines.append(f"Fast charger: {' '.join(bits)}")
-
     sched_time = charge.get('scheduled_charging_start_time')
     sched_mode = charge.get('scheduled_charging_mode')
     sched_pending = charge.get('scheduled_charging_pending')
@@ -637,8 +625,6 @@ def _report_json(vehicle, data: dict) -> dict:
             "charging_amps": charge.get('charging_amps'),
             "charge_port_door_open": charge.get('charge_port_door_open'),
             "conn_charge_cable": charge.get('conn_charge_cable'),
-            "fast_charger_present": charge.get('fast_charger_present'),
-            "fast_charger_type": charge.get('fast_charger_type'),
         },
         "scheduled_charging": {
             "mode": charge.get('scheduled_charging_mode'),
@@ -694,53 +680,10 @@ def _ensure_online_or_exit(vehicle, allow_wake: bool):
     name = vehicle.get('display_name', 'Vehicle')
     print(
         f"ℹ️ {name} is currently '{state}'. Skipping wake because --no-wake was set.\n"
-        f"   Re-run without --no-wake, or run: {_invocation('wake --yes')}",
+        f"   Re-run without --no-wake, or run: {_invocation('wake')}",
         file=sys.stderr,
     )
     sys.exit(3)
-
-
-def fetch_vehicle_data(vehicle, retries: int = 2, retry_delay_s: float = 0.5) -> dict:
-    """Fetch vehicle_data with basic retries for transient failures.
-
-    Teslapy/Tesla's API occasionally returns transient errors/timeouts.
-    For read-only commands, a short retry loop improves UX substantially.
-
-    Args:
-        vehicle: teslapy Vehicle object
-        retries: number of retries after the initial attempt (>=0)
-        retry_delay_s: initial backoff delay in seconds
-    """
-    try:
-        r = int(retries)
-    except Exception:
-        r = 2
-    if r < 0:
-        r = 0
-
-    try:
-        base = float(retry_delay_s)
-    except Exception:
-        base = 0.5
-    if base < 0:
-        base = 0.0
-
-    last_err = None
-    for attempt in range(r + 1):
-        try:
-            return vehicle.get_vehicle_data()
-        except Exception as e:
-            last_err = e
-            if attempt >= r:
-                break
-            # Exponential backoff: base, 2*base, 4*base...
-            sleep_s = base * (2 ** attempt)
-            if sleep_s > 0:
-                time.sleep(sleep_s)
-
-    raise RuntimeError(
-        f"Failed to fetch vehicle data after {r + 1} attempt(s): {last_err}"
-    )
 
 
 def cmd_report(args):
@@ -748,7 +691,7 @@ def cmd_report(args):
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
     _ensure_online_or_exit(vehicle, allow_wake=not getattr(args, 'no_wake', False))
-    data = fetch_vehicle_data(vehicle, retries=getattr(args, 'retries', 2), retry_delay_s=getattr(args, 'retry_delay', 0.5))
+    data = vehicle.get_vehicle_data()
 
     if args.json:
         # Default JSON output is a structured, sanitized report object.
@@ -769,7 +712,7 @@ def cmd_status(args):
     vehicle = get_vehicle(tesla, args.car)
 
     _ensure_online_or_exit(vehicle, allow_wake=not getattr(args, 'no_wake', False))
-    data = fetch_vehicle_data(vehicle, retries=getattr(args, 'retries', 2), retry_delay_s=getattr(args, 'retry_delay', 0.5))
+    data = vehicle.get_vehicle_data()
 
     # When --json is requested, print *only* JSON (no extra human text), so it can
     # be reliably piped/parsed.
@@ -862,7 +805,7 @@ def cmd_climate(args):
         allow_wake = not getattr(args, 'no_wake', False)
         _ensure_online_or_exit(vehicle, allow_wake=allow_wake)
 
-        data = fetch_vehicle_data(vehicle, retries=getattr(args, 'retries', 2), retry_delay_s=getattr(args, 'retry_delay', 0.5))
+        data = vehicle.get_vehicle_data()
         climate = data.get('climate_state', {})
 
         out = {
@@ -967,7 +910,7 @@ def cmd_charge(args):
     _ensure_online_or_exit(vehicle, allow_wake=allow_wake)
 
     if args.action == 'status':
-        data = fetch_vehicle_data(vehicle, retries=getattr(args, 'retries', 2), retry_delay_s=getattr(args, 'retry_delay', 0.5))
+        data = vehicle.get_vehicle_data()
         charge = data['charge_state']
 
         if args.json:
@@ -1086,7 +1029,7 @@ def cmd_scheduled_charging(args):
     _ensure_online_or_exit(vehicle, allow_wake=allow_wake)
 
     if args.action == 'status':
-        data = fetch_vehicle_data(vehicle, retries=getattr(args, 'retries', 2), retry_delay_s=getattr(args, 'retry_delay', 0.5))
+        data = vehicle.get_vehicle_data()
         charge = data.get('charge_state', {})
         sched_time = charge.get('scheduled_charging_start_time')
         sched_mode = charge.get('scheduled_charging_mode')
@@ -1146,7 +1089,7 @@ def cmd_scheduled_departure(args):
     allow_wake = not getattr(args, 'no_wake', False)
     _ensure_online_or_exit(vehicle, allow_wake=allow_wake)
 
-    data = fetch_vehicle_data(vehicle, retries=getattr(args, 'retries', 2), retry_delay_s=getattr(args, 'retry_delay', 0.5))
+    data = vehicle.get_vehicle_data()
     charge = data.get('charge_state', {})
     out = _scheduled_departure_status_json(charge)
 
@@ -1207,7 +1150,7 @@ def cmd_location(args):
     vehicle = get_vehicle(tesla, args.car)
     _ensure_online_or_exit(vehicle, allow_wake=not getattr(args, 'no_wake', False))
 
-    data = fetch_vehicle_data(vehicle, retries=getattr(args, 'retries', 2), retry_delay_s=getattr(args, 'retry_delay', 0.5))
+    data = vehicle.get_vehicle_data()
     drive = data['drive_state']
 
     lat, lon = drive['latitude'], drive['longitude']
@@ -1237,7 +1180,7 @@ def cmd_tires(args):
     allow_wake = not getattr(args, 'no_wake', False)
     _ensure_online_or_exit(vehicle, allow_wake=allow_wake)
 
-    data = fetch_vehicle_data(vehicle, retries=getattr(args, 'retries', 2), retry_delay_s=getattr(args, 'retry_delay', 0.5))
+    data = vehicle.get_vehicle_data()
     vs = data.get('vehicle_state', {})
 
     fl = _fmt_tire_pressure(vs.get('tpms_pressure_fl'))
@@ -1353,7 +1296,7 @@ def cmd_openings(args):
     allow_wake = not getattr(args, 'no_wake', False)
     _ensure_online_or_exit(vehicle, allow_wake=allow_wake)
 
-    data = fetch_vehicle_data(vehicle, retries=getattr(args, 'retries', 2), retry_delay_s=getattr(args, 'retry_delay', 0.5))
+    data = vehicle.get_vehicle_data()
     vs = data.get('vehicle_state', {})
 
     out = {
@@ -1424,7 +1367,7 @@ def cmd_windows(args):
     if args.action == 'status':
         allow_wake = not getattr(args, 'no_wake', False)
         _ensure_online_or_exit(vehicle, allow_wake=allow_wake)
-        data = fetch_vehicle_data(vehicle, retries=getattr(args, 'retries', 2), retry_delay_s=getattr(args, 'retry_delay', 0.5))
+        data = vehicle.get_vehicle_data()
         vs = data.get('vehicle_state', {})
 
         out = {
@@ -1575,14 +1518,14 @@ def _parse_seat_heater(seat: str) -> int:
 
 
 def cmd_seats(args):
-    """Seat heaters: status (read-only), set level, or turn all off (requires --yes)."""
+    """Seat heaters: status (read-only) or set (requires --yes)."""
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
 
     if args.action == "status":
         allow_wake = not getattr(args, "no_wake", False)
         _ensure_online_or_exit(vehicle, allow_wake=allow_wake)
-        data = fetch_vehicle_data(vehicle, retries=getattr(args, 'retries', 2), retry_delay_s=getattr(args, 'retry_delay', 0.5))
+        data = vehicle.get_vehicle_data()
         climate = data.get("climate_state", {})
         out = _seat_heater_fields(climate)
 
@@ -1615,27 +1558,6 @@ def cmd_seats(args):
         print(f"🔥 {vehicle['display_name']} seat heater {heater} set to {level}")
         return
 
-    if args.action == "off":
-        require_yes(args, "seats off")
-        wake_vehicle(vehicle)
-
-        # Try turning off all seat heaters (0..6). Some vehicles may not support
-        # every heater id; keep it best-effort.
-        failures = []
-        for heater in range(7):
-            try:
-                vehicle.command("REMOTE_SEAT_HEATER_REQUEST", heater=heater, level=0)
-            except Exception as e:
-                failures.append((heater, str(e)))
-
-        if failures:
-            print(f"🔥 {vehicle['display_name']} seat heaters: attempted OFF for all; {len(failures)} failed")
-            for heater, msg in failures:
-                print(f"   - heater {heater}: {msg}")
-        else:
-            print(f"🔥 {vehicle['display_name']} seat heaters turned off")
-        return
-
     raise ValueError(f"Unknown action: {args.action}")
 
 
@@ -1652,7 +1574,7 @@ def cmd_sentry(args):
     _ensure_online_or_exit(vehicle, allow_wake=allow_wake)
 
     if args.action == 'status':
-        data = fetch_vehicle_data(vehicle, retries=getattr(args, 'retries', 2), retry_delay_s=getattr(args, 'retry_delay', 0.5))
+        data = vehicle.get_vehicle_data()
         sentry = data.get('vehicle_state', {}).get('sentry_mode')
         if args.json:
             print(json.dumps({'sentry_mode': sentry}, indent=2))
@@ -1730,7 +1652,7 @@ def cmd_charge_port(args):
 
     if args.action == 'status':
         _ensure_online_or_exit(vehicle, allow_wake=not getattr(args, 'no_wake', False))
-        data = fetch_vehicle_data(vehicle, retries=getattr(args, 'retries', 2), retry_delay_s=getattr(args, 'retry_delay', 0.5))
+        data = vehicle.get_vehicle_data()
         out = _charge_port_status_json(vehicle, data)
 
         if getattr(args, 'json', False):
@@ -1765,12 +1687,7 @@ def cmd_charge_port(args):
 
 
 def cmd_wake(args):
-    """Wake up the vehicle (requires --yes).
-
-    Waking a sleeping car has real-world consequences (battery use, noise), so we
-    safety-gate this action.
-    """
-    require_yes(args, "wake")
+    """Wake up the vehicle."""
     tesla = get_tesla(require_email(args))
     vehicle = get_vehicle(tesla, args.car)
     print(f"⏳ Waking {vehicle['display_name']}...")
@@ -1789,7 +1706,7 @@ def cmd_summary(args):
     vehicle = get_vehicle(tesla, args.car)
 
     _ensure_online_or_exit(vehicle, allow_wake=not getattr(args, 'no_wake', False))
-    data = fetch_vehicle_data(vehicle, retries=getattr(args, 'retries', 2), retry_delay_s=getattr(args, 'retry_delay', 0.5))
+    data = vehicle.get_vehicle_data()
 
     if getattr(args, 'json', False):
         if getattr(args, 'raw_json', False):
@@ -2162,27 +2079,13 @@ def main():
             "Default JSON output is sanitized/summary for safety."
         ),
     )
-
-    parser.add_argument(
-        "--retries",
-        type=int,
-        default=2,
-        help="Retries for transient API failures when fetching vehicle data (default: 2)",
-    )
-    parser.add_argument(
-        "--retry-delay",
-        dest="retry_delay",
-        type=float,
-        default=0.5,
-        help="Initial retry delay in seconds (default: 0.5)",
-    )
     parser.add_argument(
         "--yes",
         action="store_true",
         help=(
             "Safety confirmation for sensitive/disruptive actions "
             "(unlock/charge start|stop|limit|amps/trunk/windows/seats set/honk/flash/charge-port open|close/"
-            "scheduled-charging set|off/sentry on|off/location precise/wake)"
+            "scheduled-charging set|off/sentry on|off/location precise)"
         ),
     )
 
@@ -2323,16 +2226,9 @@ def main():
     windows_parser.add_argument("--json", action="store_true", help="(status only) Output JSON")
 
     # Seat heaters
-    seats_parser = subparsers.add_parser(
-        "seats",
-        help="Seat heater status (read-only) or set/off (requires --yes)",
-    )
-    seats_parser.add_argument("action", choices=["status", "set", "off"], help="status|set|off")
-    seats_parser.add_argument(
-        "seat",
-        nargs="?",
-        help="For 'set': driver|passenger|rear-left|rear-center|rear-right|3rd-left|3rd-right (or 0–6)",
-    )
+    seats_parser = subparsers.add_parser("seats", help="Seat heater status (read-only) or set level (requires --yes)")
+    seats_parser.add_argument("action", choices=["status", "set"], help="status|set")
+    seats_parser.add_argument("seat", nargs="?", help="For 'set': driver|passenger|rear-left|rear-center|rear-right|3rd-left|3rd-right (or 0–6)")
     seats_parser.add_argument("level", nargs="?", help="For 'set': 0–3 (0=off)")
     seats_parser.add_argument("--no-wake", action="store_true", help="(status only) Do not wake the car")
     seats_parser.add_argument("--json", action="store_true", help="(status only) Output JSON")
