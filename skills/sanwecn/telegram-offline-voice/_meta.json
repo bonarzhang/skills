@@ -3,11 +3,16 @@
   "slug": "telegram-offline-voice",
   "displayName": "Telegram Offline Voice",
   "latest": {
-    "version": "0.1.1",
-    "publishedAt": 1769620055395,
-    "commit": "https://github.com/clawdbot/skills/commit/661801e3a0ca26a6bab25fe27ea1bd6c3e71f9fa"
+    "version": "0.1.2",
+    "publishedAt": 1769885194111,
+    "commit": null
   },
   "history": [
+    {
+      "version": "0.1.1",
+      "publishedAt": 1769620055395,
+      "commit": "https://github.com/clawdbot/skills/commit/661801e3a0ca26a6bab25fe27ea1bd6c3e71f9fa"
+    },
     {
       "version": "0.1.0",
       "publishedAt": 1769601642175,
