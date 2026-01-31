@@ -1,3 +1,7 @@
+---
+summary: Security scanner for Moltbot skills. Scan GitHub repositories for vulnerabilities before installation.
+---
+
 # MoltCheck Skill
 
 MoltCheck is a comprehensive security scanner designed specifically for the Moltbot ecosystem. It analyzes GitHub repositories and agent skills for security vulnerabilities, providing:
