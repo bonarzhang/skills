@@ -3,9 +3,15 @@
   "slug": "notion-api-skill",
   "displayName": "Notion",
   "latest": {
-    "version": "1.0.1",
-    "publishedAt": 1770029552352,
-    "commit": "https://github.com/clawdbot/skills/commit/696e7da6db2c0d4221ba0ce9eed46d4dc14d2ae5"
+    "version": "1.0.2",
+    "publishedAt": 1770117565385,
+    "commit": null
   },
-  "history": []
+  "history": [
+    {
+      "version": "1.0.1",
+      "publishedAt": 1770029552352,
+      "commit": "https://github.com/clawdbot/skills/commit/696e7da6db2c0d4221ba0ce9eed46d4dc14d2ae5"
+    }
+  ]
 }

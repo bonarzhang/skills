@@ -26,10 +26,10 @@ curl -s -X POST 'https://gateway.maton.ai/notion/v1/search' \
 ## Base URL
 
 ```
-https://gateway.maton.ai/notion/v1/{endpoint}
+https://gateway.maton.ai/notion/{native-api-path}
 ```
 
-The gateway proxies requests to `api.notion.com` and automatically injects your OAuth token.
+Replace `{native-api-path}` with the actual Notion API endpoint path. The gateway proxies requests to `api.notion.com` and automatically injects your OAuth token.
 
 ## Required Headers
 
@@ -55,7 +55,7 @@ export MATON_API_KEY="YOUR_API_KEY"
 
 ### Getting Your API Key
 
-1. Sign in at [maton.ai](https://maton.ai)
+1. Sign in or create an account at [maton.ai](https://maton.ai)
 2. Go to [maton.ai/settings](https://maton.ai/settings)
 3. Copy your API key
 
@@ -86,28 +86,17 @@ curl -s -X GET 'https://ctrl.maton.ai/connections/{connection_id}' \
   -H 'Authorization: Bearer YOUR_API_KEY'
 ```
 
-**List Connections Response:**
-```json
-{
-  "connections": [
-    {
-      "connection_id": "21fd90f9-5935-43cd-b6c8-bde9d915ca80",
-      "status": "ACTIVE",
-      "url": "https://connect.maton.ai/?session_token=...",
-      "app": "notion"
-    }
-  ]
-}
-```
-
-**Get Single Connection Response:**
+**Response:**
 ```json
 {
   "connection": {
     "connection_id": "21fd90f9-5935-43cd-b6c8-bde9d915ca80",
     "status": "ACTIVE",
+    "creation_time": "2025-12-08T07:20:53.488460Z",
+    "last_updated_time": "2026-01-31T20:03:32.593153Z",
     "url": "https://connect.maton.ai/?session_token=...",
-    "app": "notion"
+    "app": "notion",
+    "metadata": {}
   }
 }
 ```
@@ -120,6 +109,21 @@ Open the returned `url` in a browser to complete OAuth authorization.
 curl -s -X DELETE 'https://ctrl.maton.ai/connections/{connection_id}' \
   -H 'Authorization: Bearer YOUR_API_KEY'
 ```
+
+### Specifying Connection
+
+If you have multiple Notion connections, specify which one to use with the `Maton-Connection` header:
+
+```bash
+curl -s -X POST 'https://gateway.maton.ai/notion/v1/search' \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer YOUR_API_KEY' \
+  -H 'Notion-Version: 2025-09-03' \
+  -H 'Maton-Connection: 21fd90f9-5935-43cd-b6c8-bde9d915ca80' \
+  -d '{"query": "meeting notes"}'
+```
+
+If omitted, the gateway uses the default (oldest) active connection.
 
 ## Key Concept: Databases vs Data Sources
 
