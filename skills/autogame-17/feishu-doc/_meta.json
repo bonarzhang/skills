@@ -3,11 +3,16 @@
   "slug": "feishu-doc",
   "displayName": "Feishu Doc",
   "latest": {
-    "version": "1.2.2",
-    "publishedAt": 1770118133120,
-    "commit": "https://github.com/clawdbot/skills/commit/05259911d8a5a5feb874ab7ea34538873cab583d"
+    "version": "1.2.3",
+    "publishedAt": 1770152124111,
+    "commit": null
   },
   "history": [
+    {
+      "version": "1.2.2",
+      "publishedAt": 1770118133120,
+      "commit": "https://github.com/clawdbot/skills/commit/05259911d8a5a5feb874ab7ea34538873cab583d"
+    },
     {
       "version": "1.1.2",
       "publishedAt": 1769947008368,
