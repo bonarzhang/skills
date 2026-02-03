@@ -1,0 +1,11 @@
+{
+  "owner": "paulpete",
+  "slug": "release-bump",
+  "displayName": "Release Bump",
+  "latest": {
+    "version": "0.1.0",
+    "publishedAt": 1770081810526,
+    "commit": null
+  },
+  "history": []
+}
