@@ -55,10 +55,10 @@ Then use `/skill:deep-research` in Pi, or let Pi auto-detect it from the descrip
 ### ClawHub (OpenClaw registry)
 
 ```bash
-npx clawhub install deep-research
+npx clawhub install agent-deep-research
 ```
 
-Or browse at [clawhub.ai](https://clawhub.ai).
+Or browse at [clawhub.ai/skills/agent-deep-research](https://clawhub.ai/skills/agent-deep-research).
 
 ## Prerequisites
 
@@ -266,6 +266,18 @@ Google Gemini API
     v
 .gemini-research.json (local workspace state)
 ```
+
+## Security & Trust
+
+This skill contains **no obfuscated code, no binary blobs, and no minified scripts**. Every file is readable Python using [PEP 723](https://peps.python.org/pep-0723/) inline script metadata, executed via `uv run` with explicit dependency declarations -- nothing is hidden.
+
+- **Network access**: Google Gemini API only (requires your API key via environment variable)
+- **No telemetry**: No analytics, no data collection, no phone-home behavior of any kind
+- **Fully auditable**: `scripts/` contains every line of executable code; read it in five minutes
+- **MIT licensed**: [LICENSE](LICENSE) -- fork it, audit it, vendor it
+- **Security policy**: [SECURITY.md](SECURITY.md) -- responsible disclosure via GitHub Security Advisories
+
+In the wake of the [ToxicSkills disclosure](https://skills.sh/blog/toxicskills), we believe explicit transparency is table stakes for any agent skill. If something looks wrong, [open an issue](https://github.com/24601/agent-deep-research/issues).
 
 ## Known Issues
 
