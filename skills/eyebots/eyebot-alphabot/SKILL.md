@@ -1,52 +1,57 @@
 ---
 name: eyebot-alphabot
-description: Ultimate market intelligence system. Real-time whale tracking, price alerts, trending token detection, and on-chain analytics for alpha hunting.
-metadata: {"clawdbot":{"emoji":"📊","homepage":"https://eyebots.io"}}
+description: Market intelligence and alpha finder for crypto opportunities
+version: 1.2.0
+author: ILL4NE
+metadata:
+  chains: [base, ethereum, polygon, arbitrum]
+  category: market-intelligence
 ---
 
-# AlphaBot Elite ⚡
+# AlphaBot 🎯
 
-**Ultimate Market Intelligence**
+**AI Market Intelligence Engine**
 
-Professional-grade market analysis and alpha detection.
+Find alpha before the crowd. Track whale movements, identify emerging trends, and discover opportunities across DeFi.
 
-## ⚡ Elite Features
+## Features
 
-### Whale Tracking
-- Large wallet monitoring
-- Smart money movements
-- Accumulation detection
-- Whale alert notifications
+- **Whale Tracking**: Monitor large wallet movements
+- **Trend Detection**: Identify emerging narratives
+- **Token Discovery**: Find promising new tokens early
+- **Social Signals**: Track crypto Twitter sentiment
+- **On-Chain Analytics**: Deep blockchain data analysis
 
-### Price Intelligence
-- Custom price alerts
-- Support/resistance levels
-- Trend detection
-- Volume analysis
+## Intelligence Sources
 
-### Alpha Discovery
-- New pair detection
-- Trending tokens
-- Social sentiment
-- On-chain signals
+| Source | Data |
+|--------|------|
+| On-Chain | Wallet flows, DEX activity |
+| Social | Twitter, Discord, Telegram |
+| Markets | Price action, volume spikes |
+| Governance | DAO proposals, votes |
+| Development | GitHub activity, updates |
 
-### Analytics Dashboard
-- Portfolio tracking
-- P&L analysis
-- Historical data
+## Alert Types
 
-## Trigger Keywords
-alpha, whale tracking, whale alert, smart money,
-price alert, price notification, price target,
-trending tokens, hot tokens, new gems,
-market analysis, on-chain analytics, chain data,
-whale wallet, big buyers, accumulation,
-sentiment analysis, social signals, crypto signals,
-find gems, early tokens, 100x coins, alphabot
+- 🐋 Whale movements
+- 📈 Volume anomalies  
+- 🔥 Trending tokens
+- 💡 New opportunities
+- ⚠️ Risk warnings
 
-## Example Commands
-- "Track whale wallets buying ETH"
-- "Alert me when BTC hits 100k"
-- "What tokens are trending?"
+## Usage
 
-## Part of Eyebot Elite Suite 🔥
+```bash
+# Find alpha
+eyebot alphabot scan --timeframe 24h
+
+# Track a wallet
+eyebot alphabot track <wallet_address>
+
+# Get trending tokens
+eyebot alphabot trending --chain base
+```
+
+## Support
+Telegram: @ILL4NE
