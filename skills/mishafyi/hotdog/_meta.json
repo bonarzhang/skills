@@ -3,11 +3,16 @@
   "slug": "hotdog",
   "displayName": "Hotdog",
   "latest": {
-    "version": "1.5.4",
-    "publishedAt": 1770547987781,
-    "commit": "https://github.com/openclaw/skills/commit/f60419902d52d57cbf392fac5b5942d88b1e823e"
+    "version": "8.0.0",
+    "publishedAt": 1770659105925,
+    "commit": null
   },
   "history": [
+    {
+      "version": "1.5.4",
+      "publishedAt": 1770547987781,
+      "commit": "https://github.com/openclaw/skills/commit/f60419902d52d57cbf392fac5b5942d88b1e823e"
+    },
     {
       "version": "1.3.0",
       "publishedAt": 1770510352922,
